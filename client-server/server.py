@@ -5,7 +5,7 @@ from time import sleep #-
 def server():
   context = zmq.Context()
   socket  = context.socket(zmq.REP)       # create reply socket
-  socket.bind("tcp://*:12345")            # bind socket to address
+  socket.bind("tcp://*:5679")            # bind socket to address
 
   while True:
     message = socket.recv()               # wait for incoming message
