@@ -1,5 +1,6 @@
 import multiprocessing #-
 import zmq, time, pickle, sys, random #-
+from constPipe import NWORKERS
 #-
 
 def producer():
@@ -12,3 +13,6 @@ def producer():
     print("Produced workload", format(workload,'03d')) #-
     socket.send(pickle.dumps(workload))   # send workload to worker
     time.sleep(workload/NWORKERS)         # balance production by waiting 
+
+if __name__ == "__main__":
+  producer()

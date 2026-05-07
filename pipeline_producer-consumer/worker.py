@@ -1,13 +1,12 @@
 import multiprocessing #-
 import zmq, time, pickle, sys, random #-
+from constPipe import NWORKERS, SRC1, PORT1
 #-
 
-NWORKERS = 10 #-
-
-def worker(id):
+def worker():
   context = zmq.Context()
   socket  = context.socket(zmq.PULL)      # create a pull socket
-  socket.connect("tcp://localhost:12345") # connect to the producer
+  socket.connect(f"tcp://{SRC1}:{PORT1}") # connect to the producer
   thisworker = format(id,'03d') #-
 
   while True:
@@ -16,3 +15,5 @@ def worker(id):
     print("Worker " + thisworker + " gets   " + format(work,'03d')) #-
     time.sleep(work)                       # pretend to work
 
+if __name__ == "__main__":
+  worker()
