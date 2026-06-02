@@ -1,18 +1,35 @@
-import multiprocessing #-
-import zmq, time, pickle, sys, random #-
-from constPipe import PORT1
-#-
+import zmq, time, pickle, random
+from constPipe import PIPE_PORT1
+
+SENSORS = ["S01", "S02", "S03", "S04", "S05"]
 
 def producer():
-  context = zmq.Context()              
-  socket  = context.socket(zmq.PUSH)      # create a push socket
-  socket.bind(f"tcp://*:{PORT1}")    # bind socket to address
-  
-  while True:
-    workload = random.randint(1, 100)     # compute workload
-    print("Produced workload", format(workload,'03d')) #-
-    socket.send(pickle.dumps(workload))   # send workload to worker
-    time.sleep(workload/10)         # balance production by waiting 
+    context = zmq.Context()
+    socket  = context.socket(zmq.PUSH)
+    socket.bind(f"tcp://*:{PIPE_PORT1}")
+    print(f"[Producer] Bind na porta {PIPE_PORT1} — aguardando workers...\n")
+
+    time.sleep(1)
+
+    task_id = 0
+    try:
+        while True:
+            task_id += 1
+            reading = {
+                "id":          task_id,
+                "sensor":      random.choice(SENSORS),
+                "temperature": round(random.uniform(20.0, 50.0), 1),
+                "timestamp":   time.strftime("%H:%M:%S"),
+            }
+            socket.send(pickle.dumps(reading))
+            print(f"[Producer] #{task_id:03d}  sensor={reading['sensor']}  "
+                  f"temp={reading['temperature']:5.1f}°C  ({reading['timestamp']})")
+            time.sleep(random.uniform(0.5, 1.5))
+    except KeyboardInterrupt:
+        print(f"\n[Producer] Encerrado após {task_id} leituras.")
+    finally:
+        socket.close()
+        context.term()
 
 if __name__ == "__main__":
-  producer()
+    producer()
